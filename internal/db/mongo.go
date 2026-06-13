@@ -2,9 +2,9 @@ package db
 
 import (
 	"context"
-	"log"
 	"time"
 
+	"github.com/japnoor/daelog/pkg/logger"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
@@ -20,14 +20,14 @@ func Connect(uri string) *MongoDB {
 
 	client, err := mongo.Connect(options.Client().ApplyURI(uri))
 	if err != nil {
-		log.Fatalf("failed to connect to MongoDB: %v", err)
+		logger.Fatal("failed to connect to MongoDB", err)
 	}
 
 	if err := client.Ping(ctx, nil); err != nil {
-		log.Fatalf("failed to ping MongoDB: %v", err)
+		logger.Fatal("failed to ping MongoDB", err)
 	}
 
-	log.Println("connected to MongoDB")
+	logger.Info("connected to MongoDB").Send()
 
 	return &MongoDB{
 		Client:   client,
