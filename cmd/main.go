@@ -20,7 +20,10 @@ func main() {
 	mongodb := db.Connect(cfg.MongoURI)
 
 	eventService := services.NewEventService(mongodb)
+	sessionService := services.NewSessionService(mongodb)
+
 	eventHandler := handlers.NewEventHandler(eventService)
+	sessionHandler := handlers.NewSessionHandler(sessionService)
 
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
@@ -32,17 +35,14 @@ func main() {
 	r.Use(middleware.RequestLogger())
 	r.Use(gin.Recovery())
 
-	r.GET("/health", func(c *gin.Context) {
-		response.OK(c, constants.MsgHealthOK)
-	})
+	r.GET("/health", func(c *gin.Context) { response.OK(c, constants.MsgHealthOK) })
 
 	v1 := r.Group("/api/v1")
 	{
-		v1.GET("/health", func(c *gin.Context) {
-			response.OK(c, constants.MsgHealthOK)
-		})
+		v1.GET("/health", func(c *gin.Context) { response.OK(c, constants.MsgHealthOK) })
 		v1.POST("/events", eventHandler.Create)
 		v1.GET("/events", eventHandler.GetByDate)
+		v1.GET("/sessions", sessionHandler.GetByDate)
 	}
 
 	logger.Info("server starting").Str("port", cfg.Port).Send()
