@@ -4,9 +4,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/japnoor/daelog/internal/config"
+	"github.com/japnoor/daelog/internal/db"
 )
 
 func main() {
+	cfg := config.Load()
+	mongodb := db.Connect(cfg.MongoURI)
+	_ = mongodb
+
 	r := gin.Default()
 
 	r.GET("/health", func(c *gin.Context) {
@@ -20,5 +26,5 @@ func main() {
 		})
 	}
 
-	r.Run(":8080")
+	r.Run(":" + cfg.Port)
 }
